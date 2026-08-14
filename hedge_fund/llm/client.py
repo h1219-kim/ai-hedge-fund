@@ -17,6 +17,7 @@ import re
 from collections.abc import Callable
 from typing import Protocol, runtime_checkable
 
+from hedge_fund.llm.claude_code import is_claude_code_model, make_claude_code_llm
 from hedge_fund.llm.registry import (
     SUPPORTED_PROVIDERS,
     env_var_for,
@@ -88,7 +89,7 @@ def make_llm(
     timeout: float = 60.0,
     max_tokens: int = 4096,
     on_token: TokenListener = None,
-) -> ChatLLM:
+) -> LLMClient:
     """Build the client for a model id, routed by the registry's provider.
 
     The id comes from the caller, else HEDGE_FUND_LLM_MODEL, else DEFAULT_MODEL — the
@@ -96,6 +97,14 @@ def make_llm(
     environment variable, because that is the only thing the user can act on.
     """
     model = model or os.environ.get("HEDGE_FUND_LLM_MODEL") or DEFAULT_MODEL
+
+    # The CLI backend is keyed by model id, not by the registry: it has no API
+    # key, so it cannot carry a PROVIDER_ENV_VARS entry, and SUPPORTED_PROVIDERS
+    # is derived from that map. Routed before provider_for() so the id never
+    # falls through to Anthropic and dies on a missing key.
+    if is_claude_code_model(model):
+        return make_claude_code_llm(model, timeout=timeout, on_token=on_token)
+
     provider = provider_for(model)
     if provider is None:
         # Unlisted ids still work: a model newer than the registry should not
@@ -143,7 +152,7 @@ def make_llm(
     return ChatLLM(model, chat, on_token)
 
 
-def AnthropicLLM(model: str | None = None, **kwargs) -> ChatLLM:  # noqa: N802
+def AnthropicLLM(model: str | None = None, **kwargs) -> LLMClient:  # noqa: N802
     """Back-compat shim: v2 was Anthropic-only, and this name is exported.
     Prefer make_llm(), which honours whichever model is selected."""
     return make_llm(model or DEFAULT_MODEL, **kwargs)

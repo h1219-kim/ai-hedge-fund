@@ -1,6 +1,12 @@
 """v2 LLM layer — provider protocol, provider clients, prompt cache."""
 
 from hedge_fund.llm.cache import PromptCache, prompt_key
+from hedge_fund.llm.claude_code import (
+    ClaudeCodeError,
+    ClaudeCodeLLM,
+    is_claude_code_model,
+    make_claude_code_llm,
+)
 from hedge_fund.llm.client import (
     DEFAULT_MODEL,
     AnthropicLLM,
@@ -23,6 +29,8 @@ from hedge_fund.llm.watch import ThesisStream
 __all__ = [
     "AnthropicLLM",
     "ChatLLM",
+    "ClaudeCodeError",
+    "ClaudeCodeLLM",
     "DEFAULT_MODEL",
     "LLMClient",
     "LLMParseError",
@@ -32,8 +40,10 @@ __all__ = [
     "ThesisStream",
     "env_var_for",
     "extract_json",
+    "is_claude_code_model",
     "is_supported",
     "load_api_models",
+    "make_claude_code_llm",
     "make_llm",
     "prompt_key",
     "provider_for",
