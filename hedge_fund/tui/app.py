@@ -1252,7 +1252,7 @@ class RunScreen(Screen):
             FUNDS_DIR.mkdir(exist_ok=True)
             stamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
             path = FUNDS_DIR / f"{spec.name}-run-{stamp}.json"
-            path.write_text(record.model_dump_json(indent=2))
+            path.write_text(record.model_dump_json(indent=2), encoding="utf-8")
             app.call_from_thread(self._show_report, record, path)
         except Exception as exc:  # fail loud, in the UI
             app.call_from_thread(self._fail, exc)
@@ -1519,7 +1519,8 @@ class BuilderScreen(Screen):
         )
         FUNDS_DIR.mkdir(exist_ok=True)
         path = FUNDS_DIR / f"{spec.name}.yaml"
-        path.write_text(yaml.safe_dump(spec.model_dump(), sort_keys=False))
+        path.write_text(
+            yaml.safe_dump(spec.model_dump(), sort_keys=False), encoding="utf-8")
         self._built = (spec, path)
 
         staff = ", ".join(s.title for s in self._state["strategies"])
@@ -1803,7 +1804,7 @@ class BacktestScreen(Screen):
             FUNDS_DIR.mkdir(exist_ok=True)
             stamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
             path = FUNDS_DIR / f"{spec.name}-backtest-{stamp}.json"
-            path.write_text(result.model_dump_json(indent=2))
+            path.write_text(result.model_dump_json(indent=2), encoding="utf-8")
             app.call_from_thread(self._finish, result, path)
         except Exception as exc:  # fail loud, in the UI
             app.call_from_thread(self._fail, exc)

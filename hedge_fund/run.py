@@ -123,7 +123,8 @@ def main() -> None:
                 result = backtest_fund(fund, start, args.date, fd, universe)
         print(result.model_dump_json(indent=2))
         if args.out:
-            Path(args.out).write_text(result.model_dump_json(indent=2))
+            Path(args.out).write_text(
+                result.model_dump_json(indent=2), encoding="utf-8")
         m = result.metrics
         console.print(
             f"[bold]{spec.name}[/] {result.start} → {result.end}  ·  "
@@ -148,7 +149,8 @@ def main() -> None:
 
     print(record.model_dump_json(indent=2))
     if args.out:
-        Path(args.out).write_text(record.model_dump_json(indent=2))
+        Path(args.out).write_text(
+            record.model_dump_json(indent=2), encoding="utf-8")
 
     for sr in record.strategies:
         abstained = sum(1 for s in sr.signals if s.metadata.get("abstained") is True)
